@@ -1,11 +1,18 @@
 import psycopg2
-from psycopg2 import sql
+from flask import Flask, render_template
 
 # Database connection details
 dbname = "postgres"
 dbuser = "postgres"
 dbpassword = "newpassword"
 dbhost = "localhost"
+
+app = Flask(__name__)
+
+# Route to serve the index.html file
+@app.route('/')
+def index():
+    return render_template('index.html')
 
 # SQL statement to create the table
 sql_create_table = """
@@ -66,3 +73,6 @@ if __name__ == "__main__":
         create_table(conn)
         insert_courses(conn, courses_data)
         conn.close()
+
+# Run the Flask application
+app.run(debug=True)
