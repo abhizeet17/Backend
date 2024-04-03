@@ -32,21 +32,13 @@ CREATE TABLE IF NOT EXISTS signup (
 # Execute the SQL command to create the signup table
 cursor.execute(create_signup_table_query)
 
-# Define the SQL statement to create the login table
-create_login_table_query = """
-CREATE TABLE IF NOT EXISTS login (
-    user_id SERIAL PRIMARY KEY,
-    username VARCHAR(50) UNIQUE NOT NULL,
-    password VARCHAR(100) NOT NULL,
-    role VARCHAR(20) NOT NULL
-);
-"""
-
-# Execute the SQL command to create the login table
-cursor.execute(create_login_table_query)
-
 # Commit changes to the database
 conn.commit()
+
+# Function to check if user exists in signup table
+def user_exists(username):
+    cursor.execute("SELECT username FROM signup WHERE username = %s", (username,))
+    return cursor.fetchone() is not None
 
 # Function to add user information to signup table
 def add_user_to_signup(username, password, name, role):
@@ -58,30 +50,15 @@ def add_user_to_signup(username, password, name, role):
     cursor.execute(insert_query, (username, hashed_password, name, role))
     conn.commit()
 
-# Function to add user information to login table
-def add_user_to_login(username, password, role):
-    hashed_password = hash_password(password)
-    insert_query = """
-    INSERT INTO login (username, password, role)
-    VALUES (%s, %s, %s)
-    """
-    cursor.execute(insert_query, (username, hashed_password, role))
-    conn.commit()
-
-# Clear existing data from the tables
-truncate_signup_table_query = """
-TRUNCATE TABLE signup;
-"""
-cursor.execute(truncate_signup_table_query)
-
-truncate_login_table_query = """
-TRUNCATE TABLE login;
-"""
-cursor.execute(truncate_login_table_query)
+def login_or_signup(username, password, name, role):
+    if user_exists(username):
+        print("User already exists. Please choose a different username.")
+    else:
+        add_user_to_signup(username, password, name, role)
+        print("User signed up successfully.")
 
 # Example usage
-add_user_to_signup("user1", "password123", "John Doe", "user")
-add_user_to_login("user1", "password123", "user")
+login_or_signup("user1", "password123", "John Doe", "user")
 
 # Close cursor and connection
 cursor.close()
