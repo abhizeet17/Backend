@@ -24,8 +24,7 @@ CREATE TABLE IF NOT EXISTS signup (
     user_id SERIAL PRIMARY KEY,
     username VARCHAR(50) UNIQUE NOT NULL,
     password VARCHAR(100) NOT NULL,
-    name VARCHAR(100) NOT NULL,
-    role VARCHAR(20) NOT NULL
+    name VARCHAR(100) NOT NULL
 );
 """
 
@@ -41,24 +40,24 @@ def user_exists(username):
     return cursor.fetchone() is not None
 
 # Function to add user information to signup table
-def add_user_to_signup(username, password, name, role):
+def add_user_to_signup(username, password, name):
     hashed_password = hash_password(password)
     insert_query = """
-    INSERT INTO signup (username, password, name, role)
-    VALUES (%s, %s, %s, %s)
+    INSERT INTO signup (username, password, name)
+    VALUES (%s, %s, %s)
     """
-    cursor.execute(insert_query, (username, hashed_password, name, role))
+    cursor.execute(insert_query, (username, hashed_password, name))
     conn.commit()
 
-def login_or_signup(username, password, name, role):
+def login_or_signup(username, password, name):
     if user_exists(username):
         print("User already exists. Please choose a different username.")
     else:
-        add_user_to_signup(username, password, name, role)
+        add_user_to_signup(username, password, name)
         print("User signed up successfully.")
 
 # Example usage
-login_or_signup("user1", "password123", "John Doe", "user")
+login_or_signup("user1", "password123", "John Doe")
 
 # Close cursor and connection
 cursor.close()
